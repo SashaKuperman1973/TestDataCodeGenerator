@@ -68,18 +68,33 @@ namespace TestDataCodeGenerator.Properties {
         ///--	for TestDataFramework from the input table
         ///-- =============================================
         ///DECLARE @TableName AS SYSNAME = &apos;@@@TableName&apos;	-- This is a token that gets replaced in the tool
+        ///DECLARE @PrintableTableName VARCHAR(MAX) = Object_Name(Object_ID(@TableName));
         ///
-        ///DECLARE @Result VARCHAR(MAX) = &apos;public class &apos; + @TableName + &apos;
-        ///{&apos;
-        ///
-        ///SELECT @Result = @Result +
-        ///
-        ///	CASE WHEN Attribute IS NOT NULL THEN 
-        ///	&apos; [rest of string was truncated]&quot;;.
+        ///DECLARE @Result VARCHAR(MAX) = &apos;using System;
+        ///using TestDataFr [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GetEntityClass {
             get {
                 return ResourceManager.GetString("GetEntityClass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to -- =============================================
+        ///-- Author: Tapan Kumar, Alexander Kuperman
+        ///-- Create date: 06/02/2015
+        ///-- Description: Generates a custom Entity Class 
+        ///--	for TestDataFramework from the input table
+        ///-- =============================================
+        ///DECLARE @TableName AS SYSNAME = &apos;@@@TableName&apos;	-- This is a token that gets replaced in the tool
+        ///DECLARE @PrintableTableName VARCHAR(MAX) = Object_Name(Object_ID(@TableName));
+        ///
+        ///DECLARE @TypeResult VARCHAR(MAX) = &apos;using System;
+        ///using TestDa [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GetPocoEntityClass {
+            get {
+                return ResourceManager.GetString("GetPocoEntityClass", resourceCulture);
             }
         }
     }

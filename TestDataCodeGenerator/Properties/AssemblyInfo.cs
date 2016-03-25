@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TestDataCodeGenerator")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Test Data Code Generator")]
+[assembly: AssemblyDescription("Test Data Framework code generator")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("TestDataCodeGenerator")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2016")]
+[assembly: AssemblyCompany("Alexander Kuperman")]
+[assembly: AssemblyProduct("Test Data Code Generator")]
+[assembly: AssemblyCopyright("Copyright © Alexander Kuperman 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

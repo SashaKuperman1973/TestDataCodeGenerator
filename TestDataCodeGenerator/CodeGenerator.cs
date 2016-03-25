@@ -33,11 +33,10 @@ namespace TestDataCodeGenerator
         {
             this.progressBar.Value = 0;
 
-            bool isInputValid;
-            // Tuple is tableName, schema
-            List<TableData> fullTableNameList = this.GetTableNameList(out isInputValid);
+            Context context;
+            List<TableData> fullTableNameList = this.GetTableNameList(out context);
 
-            if (!isInputValid)
+            if (!context.IsInputValid)
             {
                 MessageBox.Show("Input error. See comments beside inputs.", "Input error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -45,8 +44,8 @@ namespace TestDataCodeGenerator
             }
 
             if (MessageBox.Show(
-                "Output file names are based on schema and table names. This will overwrite existing files in the output folder! Continue?",
-                "Run Generator", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
+                "Output file names are based on schema and table names.\r\n\r\nThis will overwrite existing files with same output names in the output folder!\r\n\r\nContinue?",
+                "Run Generator", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
             {
                 return;
             }
@@ -55,24 +54,27 @@ namespace TestDataCodeGenerator
 
             try
             {
-                this.GenerateOutput(fullTableNameList);
+                this.GenerateEntityOutput(fullTableNameList, context.Output);
+                context.Output.Dispose();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(CodeGenerator.GetExcpetionMessage(ex), "Exception occurred", MessageBoxButtons.OK,
+                MessageBox.Show(CodeGenerator.GetExceptionMessage(ex), "Exception occurred", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+
+                this.progressBar.Value = 0;
             }
 
             this.Enabled = true;
         }
 
-        private static string GetExcpetionMessage(Exception ex)
+        private static string GetExceptionMessage(Exception ex)
         {
             string result = ex.Message;
 
             if (ex.InnerException != null)
             {
-                result += " -- " + CodeGenerator.GetExcpetionMessage(ex.InnerException);
+                result += " -- " + CodeGenerator.GetExceptionMessage(ex.InnerException);
             }
 
             return result;
@@ -83,12 +85,23 @@ namespace TestDataCodeGenerator
             public string TableName { get; set; }
             public string Schema { get; set; }
             public string Namespace { get; set; }
+
+            public override string ToString()
+            {
+                string result = $"TableName: {this.TableName}, Schema: {this.Schema}, Namespace: {this.Namespace}";
+                return result;
+            }
         }
 
-        // Tuple is tableName, schema
-        private List<TableData> GetTableNameList(out bool isInputValid)
+        public class Context
         {
-            isInputValid = true;
+            public Output Output { get; set; }
+            public bool IsInputValid { get; set; }
+        }
+
+        private List<TableData> GetTableNameList(out Context context)
+        {
+            bool isInputValid = true;
 
             if (string.IsNullOrWhiteSpace(this.connectionStringTextBox.Text))
             {
@@ -114,15 +127,40 @@ namespace TestDataCodeGenerator
                 this.outputFolderErrorLabel.Text = string.Empty;
             }
 
+            if (this.programmaticAttributesRadioButton.Checked &&
+                string.IsNullOrWhiteSpace(this.programmaticAttributeDefinitionClassNameTextBox.Text))
+            {
+                this.classNameErrorLabel.Text = "required";
+                this.outputFolderErrorLabel.ForeColor = Color.DarkBlue;
+
+                isInputValid = false;
+            }
+            else
+            {
+                this.outputFolderErrorLabel.Text = string.Empty;
+            }
+
+            if (this.programmaticAttributesRadioButton.Checked && string.IsNullOrWhiteSpace(this.nameSpaceTextBox.Text))
+            {
+                this.nameSpaceErrorLabel.Text = "required";
+                this.outputFolderErrorLabel.ForeColor = Color.DarkBlue;
+
+                isInputValid = false;
+            }
+            else
+            {
+                this.nameSpaceErrorLabel.Text = string.Empty;
+            }
+
             var fullTableNameList = new List<TableData>();
 
             for (int i = 0; i < this.tableNameGridView.Rows.Count - 1; i++)
             {
-                string schema = ((string)this.tableNameGridView[0, i].Value)?.Trim();
-                string tableName = ((string)this.tableNameGridView[1, i].Value)?.Trim();
-                string nameSpace = ((string)this.tableNameGridView[2, i].Value)?.Trim();
+                string schema = ((string)this.tableNameGridView["schemaColumn", i].Value)?.Trim();
+                string tableName = ((string)this.tableNameGridView["tableNameColumn", i].Value)?.Trim();
+                string nameSpace = ((string)this.tableNameGridView["namespaceColumn", i].Value)?.Trim();
 
-                var errorCell = (DataGridViewTextBoxCell)this.tableNameGridView[2, i];
+                var errorCell = (DataGridViewTextBoxCell)this.tableNameGridView["errorTextColumn", i];
                 errorCell.Style = new DataGridViewCellStyle { ForeColor = Color.DarkBlue };
 
                 if (string.IsNullOrWhiteSpace(tableName))
@@ -167,10 +205,25 @@ namespace TestDataCodeGenerator
                 fullTableNameList.Add(new TableData { TableName = tableName, Schema = schema, Namespace = actualNameSpace});
             }
 
+            context = new Context {IsInputValid = isInputValid};
+
+            if (!isInputValid) return fullTableNameList;
+
+            if (this.declarativeAttributesRadioButton.Checked)
+            {
+                context.Output = new EntityOutput(this.outputFolderTextBox.Text, Properties.Resources.GetEntityClass);
+            }
+            else
+            {
+                context.Output = new PocoOutput(this.outputFolderTextBox.Text.Trim(),
+                    Properties.Resources.GetPocoEntityClass, this.nameSpaceTextBox.Text.Trim(),
+                    this.programmaticAttributeDefinitionClassNameTextBox.Text.Trim());
+            }
+
             return fullTableNameList;
         }
 
-        private void GenerateOutput(IReadOnlyCollection<TableData> fullTableNameList)
+        private void GenerateEntityOutput(IReadOnlyCollection<TableData> fullTableNameList, Output output)
         {
             this.progressBar.Maximum = fullTableNameList.Count;
             this.progressBar.Minimum = 0;
@@ -181,40 +234,27 @@ namespace TestDataCodeGenerator
 
                 foreach (TableData tableData in fullTableNameList)
                 {
-                    string fullTableName = $"[{tableData.TableName}]";
-
-                    if (!string.IsNullOrWhiteSpace(tableData.Schema))
+                    try
                     {
-                        fullTableName = $"[{tableData.Schema}]." + fullTableName;
+                        output.WriteOutput(connection, tableData);
+                        this.progressBar.Value++;
+
                     }
-
-                    var sql = new StringBuilder(Properties.Resources.GetEntityClass);
-
-                    sql.Replace("@@@TableName", fullTableName);
-                    sql.Replace("@@@NameSpace", tableData.Namespace);
-
-                    string code;
-                    using (SqlCommand command = connection.CreateCommand())
+                    catch (Exception ex)
                     {
-                        command.CommandType = CommandType.Text;
-                        command.CommandText = sql.ToString();
-
-                        code = (string)command.ExecuteScalar();
+                        throw new ApplicationException($"Currently on: {{{tableData}}}", ex);
                     }
-
-                    string fileName = tableData.TableName.Replace(" ", "_");
-                    if (!string.IsNullOrWhiteSpace(tableData.Schema))
-                    {
-                        fileName = tableData.Schema.Replace(" ", "_") + "." + fileName;
-                    }
-
-                    fileName += ".cs";
-
-                    File.WriteAllText(this.outputFolderTextBox.Text + @"\" + fileName, code);
-
-                    this.progressBar.Value++;
                 }
             }
+        }
+
+        private void programmaticAttributesRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            this.programmaticAttributesRadioButtonLabel.Visible = 
+                this.programmaticAttributesRadioButton.Checked;
+
+            this.programmaticAttributeDefinitionClassNameTextBox.Visible =
+                this.programmaticAttributesRadioButton.Checked;
         }
     }
 }

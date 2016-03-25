@@ -30,20 +30,26 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.connectionStringTextBox = new System.Windows.Forms.TextBox();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.browseOutputFolderButton = new System.Windows.Forms.Button();
             this.outputFolderTextBox = new System.Windows.Forms.TextBox();
             this.tableNameGridView = new System.Windows.Forms.DataGridView();
+            this.schemaColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.namespaceColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.errorTextColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.runButton = new System.Windows.Forms.Button();
             this.connectionStringErrorLabel = new System.Windows.Forms.Label();
             this.outputFolderErrorLabel = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.label2 = new System.Windows.Forms.Label();
             this.nameSpaceTextBox = new System.Windows.Forms.TextBox();
-            this.schemaColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Namespace = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ErrorText = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.declarativeAttributesRadioButton = new System.Windows.Forms.RadioButton();
+            this.programmaticAttributesRadioButton = new System.Windows.Forms.RadioButton();
+            this.programmaticAttributesRadioButtonLabel = new System.Windows.Forms.Label();
+            this.programmaticAttributeDefinitionClassNameTextBox = new System.Windows.Forms.TextBox();
+            this.classNameErrorLabel = new System.Windows.Forms.Label();
+            this.nameSpaceErrorLabel = new System.Windows.Forms.Label();
+            this.browseOutputFolderButton = new System.Windows.Forms.Button();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.tableNameGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -63,22 +69,12 @@
             this.connectionStringTextBox.Size = new System.Drawing.Size(1132, 20);
             this.connectionStringTextBox.TabIndex = 1;
             // 
-            // browseOutputFolderButton
-            // 
-            this.browseOutputFolderButton.Location = new System.Drawing.Point(12, 66);
-            this.browseOutputFolderButton.Name = "browseOutputFolderButton";
-            this.browseOutputFolderButton.Size = new System.Drawing.Size(112, 23);
-            this.browseOutputFolderButton.TabIndex = 6;
-            this.browseOutputFolderButton.Text = "Select output folder";
-            this.browseOutputFolderButton.UseVisualStyleBackColor = true;
-            this.browseOutputFolderButton.Click += new System.EventHandler(this.browseOutputFolderButton_Click);
-            // 
             // outputFolderTextBox
             // 
             this.outputFolderTextBox.Location = new System.Drawing.Point(131, 68);
             this.outputFolderTextBox.Name = "outputFolderTextBox";
             this.outputFolderTextBox.Size = new System.Drawing.Size(1014, 20);
-            this.outputFolderTextBox.TabIndex = 7;
+            this.outputFolderTextBox.TabIndex = 2;
             // 
             // tableNameGridView
             // 
@@ -86,16 +82,41 @@
             this.tableNameGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.schemaColumn,
             this.tableNameColumn,
-            this.Namespace,
-            this.ErrorText});
-            this.tableNameGridView.Location = new System.Drawing.Point(12, 161);
+            this.namespaceColumn,
+            this.errorTextColumn});
+            this.tableNameGridView.Location = new System.Drawing.Point(12, 240);
             this.tableNameGridView.Name = "tableNameGridView";
             this.tableNameGridView.Size = new System.Drawing.Size(1133, 408);
-            this.tableNameGridView.TabIndex = 8;
+            this.tableNameGridView.TabIndex = 7;
+            // 
+            // schemaColumn
+            // 
+            this.schemaColumn.HeaderText = "Schema (optional)";
+            this.schemaColumn.Name = "schemaColumn";
+            this.schemaColumn.Width = 230;
+            // 
+            // tableNameColumn
+            // 
+            this.tableNameColumn.HeaderText = "Table Name";
+            this.tableNameColumn.Name = "tableNameColumn";
+            this.tableNameColumn.Width = 200;
+            // 
+            // namespaceColumn
+            // 
+            this.namespaceColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.namespaceColumn.HeaderText = "Namespace";
+            this.namespaceColumn.Name = "namespaceColumn";
+            // 
+            // errorTextColumn
+            // 
+            this.errorTextColumn.HeaderText = "";
+            this.errorTextColumn.Name = "errorTextColumn";
+            this.errorTextColumn.ReadOnly = true;
+            this.errorTextColumn.Width = 170;
             // 
             // runButton
             // 
-            this.runButton.Location = new System.Drawing.Point(12, 598);
+            this.runButton.Location = new System.Drawing.Point(12, 677);
             this.runButton.Name = "runButton";
             this.runButton.Size = new System.Drawing.Size(75, 23);
             this.runButton.TabIndex = 9;
@@ -121,7 +142,7 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(13, 642);
+            this.progressBar.Location = new System.Drawing.Point(13, 721);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(629, 23);
             this.progressBar.TabIndex = 12;
@@ -129,49 +150,99 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 113);
+            this.label2.Location = new System.Drawing.Point(9, 192);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(64, 13);
-            this.label2.TabIndex = 13;
+            this.label2.TabIndex = 0;
             this.label2.Text = "Namespace";
             // 
             // nameSpaceTextBox
             // 
-            this.nameSpaceTextBox.Location = new System.Drawing.Point(131, 113);
+            this.nameSpaceTextBox.Location = new System.Drawing.Point(82, 192);
             this.nameSpaceTextBox.Name = "nameSpaceTextBox";
-            this.nameSpaceTextBox.Size = new System.Drawing.Size(511, 20);
-            this.nameSpaceTextBox.TabIndex = 14;
+            this.nameSpaceTextBox.Size = new System.Drawing.Size(560, 20);
+            this.nameSpaceTextBox.TabIndex = 6;
             // 
-            // schemaColumn
+            // declarativeAttributesRadioButton
             // 
-            this.schemaColumn.HeaderText = "Schema (optional)";
-            this.schemaColumn.Name = "schemaColumn";
-            this.schemaColumn.Width = 230;
+            this.declarativeAttributesRadioButton.AutoSize = true;
+            this.declarativeAttributesRadioButton.Checked = true;
+            this.declarativeAttributesRadioButton.Location = new System.Drawing.Point(12, 104);
+            this.declarativeAttributesRadioButton.Name = "declarativeAttributesRadioButton";
+            this.declarativeAttributesRadioButton.Size = new System.Drawing.Size(176, 17);
+            this.declarativeAttributesRadioButton.TabIndex = 3;
+            this.declarativeAttributesRadioButton.TabStop = true;
+            this.declarativeAttributesRadioButton.Text = "Class with Declarative Attributes";
+            this.declarativeAttributesRadioButton.UseVisualStyleBackColor = true;
             // 
-            // tableNameColumn
+            // programmaticAttributesRadioButton
             // 
-            this.tableNameColumn.HeaderText = "Table Name";
-            this.tableNameColumn.Name = "tableNameColumn";
-            this.tableNameColumn.Width = 200;
+            this.programmaticAttributesRadioButton.AutoSize = true;
+            this.programmaticAttributesRadioButton.Location = new System.Drawing.Point(12, 127);
+            this.programmaticAttributesRadioButton.Name = "programmaticAttributesRadioButton";
+            this.programmaticAttributesRadioButton.Size = new System.Drawing.Size(290, 17);
+            this.programmaticAttributesRadioButton.TabIndex = 4;
+            this.programmaticAttributesRadioButton.TabStop = true;
+            this.programmaticAttributesRadioButton.Text = "POCO Class with generated programmatic attribute code";
+            this.programmaticAttributesRadioButton.UseVisualStyleBackColor = true;
+            this.programmaticAttributesRadioButton.CheckedChanged += new System.EventHandler(this.programmaticAttributesRadioButton_CheckedChanged);
             // 
-            // Namespace
+            // programmaticAttributesRadioButtonLabel
             // 
-            this.Namespace.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Namespace.HeaderText = "Namespace";
-            this.Namespace.Name = "Namespace";
+            this.programmaticAttributesRadioButtonLabel.AutoSize = true;
+            this.programmaticAttributesRadioButtonLabel.Location = new System.Drawing.Point(9, 158);
+            this.programmaticAttributesRadioButtonLabel.Name = "programmaticAttributesRadioButtonLabel";
+            this.programmaticAttributesRadioButtonLabel.Size = new System.Drawing.Size(214, 13);
+            this.programmaticAttributesRadioButtonLabel.TabIndex = 0;
+            this.programmaticAttributesRadioButtonLabel.Text = "Programmatic Attribute definition class name";
+            this.programmaticAttributesRadioButtonLabel.Visible = false;
             // 
-            // ErrorText
+            // programmaticAttributeDefinitionClassNameTextBox
             // 
-            this.ErrorText.HeaderText = "";
-            this.ErrorText.Name = "ErrorText";
-            this.ErrorText.ReadOnly = true;
-            this.ErrorText.Width = 170;
+            this.programmaticAttributeDefinitionClassNameTextBox.Location = new System.Drawing.Point(230, 158);
+            this.programmaticAttributeDefinitionClassNameTextBox.Name = "programmaticAttributeDefinitionClassNameTextBox";
+            this.programmaticAttributeDefinitionClassNameTextBox.Size = new System.Drawing.Size(248, 20);
+            this.programmaticAttributeDefinitionClassNameTextBox.TabIndex = 5;
+            this.programmaticAttributeDefinitionClassNameTextBox.Visible = false;
+            // 
+            // classNameErrorLabel
+            // 
+            this.classNameErrorLabel.AutoSize = true;
+            this.classNameErrorLabel.Location = new System.Drawing.Point(484, 161);
+            this.classNameErrorLabel.Name = "classNameErrorLabel";
+            this.classNameErrorLabel.Size = new System.Drawing.Size(0, 13);
+            this.classNameErrorLabel.TabIndex = 19;
+            // 
+            // nameSpaceErrorLabel
+            // 
+            this.nameSpaceErrorLabel.AutoSize = true;
+            this.nameSpaceErrorLabel.Location = new System.Drawing.Point(649, 198);
+            this.nameSpaceErrorLabel.Name = "nameSpaceErrorLabel";
+            this.nameSpaceErrorLabel.Size = new System.Drawing.Size(0, 13);
+            this.nameSpaceErrorLabel.TabIndex = 20;
+            // 
+            // browseOutputFolderButton
+            // 
+            this.browseOutputFolderButton.Location = new System.Drawing.Point(12, 66);
+            this.browseOutputFolderButton.Name = "browseOutputFolderButton";
+            this.browseOutputFolderButton.Size = new System.Drawing.Size(112, 23);
+            this.browseOutputFolderButton.TabIndex = 0;
+            this.browseOutputFolderButton.TabStop = false;
+            this.browseOutputFolderButton.Text = "Select output folder";
+            this.browseOutputFolderButton.UseVisualStyleBackColor = true;
+            this.browseOutputFolderButton.Click += new System.EventHandler(this.browseOutputFolderButton_Click);
             // 
             // CodeGenerator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1232, 672);
+            this.ClientSize = new System.Drawing.Size(1232, 745);
+            this.Controls.Add(this.nameSpaceErrorLabel);
+            this.Controls.Add(this.classNameErrorLabel);
+            this.Controls.Add(this.programmaticAttributeDefinitionClassNameTextBox);
+            this.Controls.Add(this.programmaticAttributesRadioButtonLabel);
+            this.Controls.Add(this.programmaticAttributesRadioButton);
+            this.Controls.Add(this.declarativeAttributesRadioButton);
             this.Controls.Add(this.nameSpaceTextBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.progressBar);
@@ -194,8 +265,6 @@
         #endregion
 
         private System.Windows.Forms.TextBox connectionStringTextBox;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-        private System.Windows.Forms.Button browseOutputFolderButton;
         private System.Windows.Forms.TextBox outputFolderTextBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.DataGridView tableNameGridView;
@@ -203,10 +272,18 @@
         private System.Windows.Forms.Label connectionStringErrorLabel;
         private System.Windows.Forms.Label outputFolderErrorLabel;
         private System.Windows.Forms.ProgressBar progressBar;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Namespace;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox nameSpaceTextBox;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ErrorText;
+        private System.Windows.Forms.RadioButton declarativeAttributesRadioButton;
+        private System.Windows.Forms.RadioButton programmaticAttributesRadioButton;
+        private System.Windows.Forms.Label programmaticAttributesRadioButtonLabel;
+        private System.Windows.Forms.TextBox programmaticAttributeDefinitionClassNameTextBox;
+        private System.Windows.Forms.Label classNameErrorLabel;
+        private System.Windows.Forms.Label nameSpaceErrorLabel;
+        private System.Windows.Forms.Button browseOutputFolderButton;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+        private System.Windows.Forms.DataGridViewTextBoxColumn namespaceColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn errorTextColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn tableNameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn schemaColumn;
     }
