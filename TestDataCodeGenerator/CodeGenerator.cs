@@ -6,6 +6,8 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +19,105 @@ namespace TestDataCodeGenerator
         public CodeGenerator()
         {
             this.InitializeComponent();
+        }
+
+        #region Public Properties
+
+        public string ProfileName
+        {
+            get
+            {
+                return this.Text.Length < this.baseTitleLength + 3
+                    ? string.Empty
+                    : this.Text.Substring(this.baseTitleLength + 3);
+            }
+
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    this.Text = this.Text.Substring(0, this.baseTitleLength);
+                    return;
+                }
+
+                this.Text = this.Text.Substring(0, this.baseTitleLength) + " - " + value;
+            }
+        }
+
+        public string ConnectionString => this.connectionStringTextBox.Text;
+        public string DefaultNameSpace => this.nameSpaceTextBox.Text;
+        public string GeneratedClassName => this.programmaticAttributeDefinitionClassNameTextBox.Text;
+        public string OutputFolder => this.outputFolderTextBox.Text;
+        public GenerationOption GenerationOption
+            => this.programmaticAttributesRadioButton.Checked ? GenerationOption.Poco : GenerationOption.Declarative;
+
+        public List<TableRow> TableList
+        {
+            get
+            {
+                var result = new List<TableRow>();
+                for (int i = 0; i < this.tableNameGridView.Rows.Count - 1; i++)
+                {
+                    result.Add(new TableRow
+                    {
+                        NamespaceOverride = (string) this.tableNameGridView["namespaceColumn", i].Value,
+                        Schema = (string) this.tableNameGridView["schemaColumn", i].Value,
+                        TableName = (string) this.tableNameGridView["tableNameColumn", i].Value,
+                    });
+                }
+
+                return result;
+            }
+        }
+
+        #endregion Public Properties
+
+        private int baseTitleLength;
+
+        private void CodeGenerator_Load(object sender, EventArgs e)
+        {
+            this.baseTitleLength = this.Text.Length;
+
+            this.Closing += this.CodeGenerator_FormClosing;
+            this.Shown += this.CodeGenerator_Shown;
+
+            ProfileCollection profileCollection = ProfileStorage.Deserialize();
+
+            if (profileCollection?.LastEnteredProfile == null)
+            {
+                return;
+            }
+
+            this.PopulateScreen(profileCollection.LastEnteredProfile);
+        }
+
+        private void CodeGenerator_Shown(object sender, EventArgs e)
+        {
+            this.Shown -= this.CodeGenerator_Shown;
+            this.tableNameGridView.Focus();
+        }
+
+        private void CodeGenerator_FormClosing(object sender, CancelEventArgs e)
+        {
+            this.Closing -= this.CodeGenerator_FormClosing;
+
+            var lastProfile = new Profile
+            {
+                ProfileName = this.ProfileName,
+                ConnectionString = this.connectionStringTextBox.Text,
+                OutputFolder = this.outputFolderTextBox.Text,
+                GenerationOption = this.declarativeAttributesRadioButton.Checked
+                    ? GenerationOption.Declarative
+                    : GenerationOption.Poco,
+                GeneratedClassName = this.programmaticAttributeDefinitionClassNameTextBox.Text,
+                DefaultNameSpace = this.nameSpaceTextBox.Text,
+                TableList = this.TableList
+            };
+
+            ProfileCollection profileCollection = ProfileStorage.Deserialize() ?? new ProfileCollection();
+            profileCollection.LastEnteredProfile = lastProfile;
+
+            ProfileStorage.Serialize(profileCollection);
         }
 
         private void browseOutputFolderButton_Click(object sender, EventArgs e)
@@ -55,7 +156,6 @@ namespace TestDataCodeGenerator
             try
             {
                 this.GenerateEntityOutput(fullTableNameList, context.Output);
-                context.Output.Dispose();
             }
             catch (Exception ex)
             {
@@ -256,5 +356,90 @@ namespace TestDataCodeGenerator
             this.programmaticAttributeDefinitionClassNameTextBox.Visible =
                 this.programmaticAttributesRadioButton.Checked;
         }
+
+        private void btnClearForm_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(
+                "Clear form?",
+                "Clear Form", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            this.connectionStringTextBox.Text = string.Empty;
+            this.outputFolderTextBox.Text = string.Empty;
+
+            this.programmaticAttributeDefinitionClassNameTextBox.Text = string.Empty;
+            this.nameSpaceTextBox.Text = string.Empty;
+
+            this.tableNameGridView.Rows.Clear();
+        }
+
+        private void PopulateScreen(Profile profile)
+        {
+            this.ProfileName = profile.ProfileName;
+
+            this.connectionStringTextBox.Text = profile.ConnectionString;
+            this.outputFolderTextBox.Text = profile.OutputFolder;
+
+            this.declarativeAttributesRadioButton.Checked = profile.GenerationOption == GenerationOption.Declarative;
+            this.programmaticAttributesRadioButton.Checked = profile.GenerationOption == GenerationOption.Poco;
+
+            this.programmaticAttributeDefinitionClassNameTextBox.Text = profile.GeneratedClassName;
+            this.nameSpaceTextBox.Text = profile.DefaultNameSpace;
+            
+            this.tableNameGridView.Rows.Clear();
+
+            profile.TableList.ForEach(
+                table => this.tableNameGridView.Rows.Add(table.Schema, table.TableName, table.NamespaceOverride, string.Empty)
+                );
+        }
+
+        private void btnLoadProfile_Click(object sender, EventArgs e)
+        {
+            using (var loadDialog = new LoadDialog())
+            {
+                if (loadDialog.ShowDialog(this) == DialogResult.Cancel)
+                {
+                    return;
+                }
+
+                this.PopulateScreen(loadDialog.ProfileToLoad);
+                this.ProfileName = loadDialog.ProfileToLoad.ProfileName;
+            }
+        }
+
+        private void btnSaveProfile_Click(object sender, EventArgs e)
+        {
+            using (var saveDialog = new SaveDialog())
+            {
+                saveDialog.ShowDialog(this);
+            }
+        }
+
+        public static void Delete(string profileName, List<Profile> profileList, ListBox profileListBox)
+        {
+            if (profileName.Trim() == string.Empty)
+            {
+                return;
+            }
+
+            if (MessageBox.Show(
+                $"Delete profile {profileName.Trim()}?",
+                "Delete Profile", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            int position =
+                profileList.FindIndex(
+                    profile =>
+                        profile.ProfileName.Equals(profileName.Trim(), StringComparison.InvariantCultureIgnoreCase));
+
+            profileList.RemoveAt(position);
+
+            profileListBox.Items.RemoveAt(position);
+        }
+
     }
 }

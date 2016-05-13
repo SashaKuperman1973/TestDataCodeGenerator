@@ -32,10 +32,6 @@
             this.connectionStringTextBox = new System.Windows.Forms.TextBox();
             this.outputFolderTextBox = new System.Windows.Forms.TextBox();
             this.tableNameGridView = new System.Windows.Forms.DataGridView();
-            this.schemaColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.namespaceColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.errorTextColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.runButton = new System.Windows.Forms.Button();
             this.connectionStringErrorLabel = new System.Windows.Forms.Label();
             this.outputFolderErrorLabel = new System.Windows.Forms.Label();
@@ -50,6 +46,13 @@
             this.nameSpaceErrorLabel = new System.Windows.Forms.Label();
             this.browseOutputFolderButton = new System.Windows.Forms.Button();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.btnClearForm = new System.Windows.Forms.Button();
+            this.btnLoadProfile = new System.Windows.Forms.Button();
+            this.btnSaveProfile = new System.Windows.Forms.Button();
+            this.schemaColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.namespaceColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.errorTextColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.tableNameGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -86,33 +89,8 @@
             this.errorTextColumn});
             this.tableNameGridView.Location = new System.Drawing.Point(12, 240);
             this.tableNameGridView.Name = "tableNameGridView";
-            this.tableNameGridView.Size = new System.Drawing.Size(1133, 408);
+            this.tableNameGridView.Size = new System.Drawing.Size(1326, 408);
             this.tableNameGridView.TabIndex = 7;
-            // 
-            // schemaColumn
-            // 
-            this.schemaColumn.HeaderText = "Schema (optional)";
-            this.schemaColumn.Name = "schemaColumn";
-            this.schemaColumn.Width = 230;
-            // 
-            // tableNameColumn
-            // 
-            this.tableNameColumn.HeaderText = "Table Name";
-            this.tableNameColumn.Name = "tableNameColumn";
-            this.tableNameColumn.Width = 200;
-            // 
-            // namespaceColumn
-            // 
-            this.namespaceColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.namespaceColumn.HeaderText = "Namespace";
-            this.namespaceColumn.Name = "namespaceColumn";
-            // 
-            // errorTextColumn
-            // 
-            this.errorTextColumn.HeaderText = "";
-            this.errorTextColumn.Name = "errorTextColumn";
-            this.errorTextColumn.ReadOnly = true;
-            this.errorTextColumn.Width = 170;
             // 
             // runButton
             // 
@@ -144,7 +122,7 @@
             // 
             this.progressBar.Location = new System.Drawing.Point(13, 721);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(629, 23);
+            this.progressBar.Size = new System.Drawing.Size(1325, 23);
             this.progressBar.TabIndex = 12;
             // 
             // label2
@@ -232,11 +210,69 @@
             this.browseOutputFolderButton.UseVisualStyleBackColor = true;
             this.browseOutputFolderButton.Click += new System.EventHandler(this.browseOutputFolderButton_Click);
             // 
+            // btnClearForm
+            // 
+            this.btnClearForm.Location = new System.Drawing.Point(779, 104);
+            this.btnClearForm.Name = "btnClearForm";
+            this.btnClearForm.Size = new System.Drawing.Size(120, 23);
+            this.btnClearForm.TabIndex = 21;
+            this.btnClearForm.Text = "Clear Form";
+            this.btnClearForm.UseVisualStyleBackColor = true;
+            this.btnClearForm.Click += new System.EventHandler(this.btnClearForm_Click);
+            // 
+            // btnLoadProfile
+            // 
+            this.btnLoadProfile.Location = new System.Drawing.Point(905, 104);
+            this.btnLoadProfile.Name = "btnLoadProfile";
+            this.btnLoadProfile.Size = new System.Drawing.Size(110, 23);
+            this.btnLoadProfile.TabIndex = 22;
+            this.btnLoadProfile.Text = "Load a Profile";
+            this.btnLoadProfile.UseVisualStyleBackColor = true;
+            this.btnLoadProfile.Click += new System.EventHandler(this.btnLoadProfile_Click);
+            // 
+            // btnSaveProfile
+            // 
+            this.btnSaveProfile.Location = new System.Drawing.Point(1021, 104);
+            this.btnSaveProfile.Name = "btnSaveProfile";
+            this.btnSaveProfile.Size = new System.Drawing.Size(120, 23);
+            this.btnSaveProfile.TabIndex = 23;
+            this.btnSaveProfile.Text = "Save Current Profile";
+            this.btnSaveProfile.UseVisualStyleBackColor = true;
+            this.btnSaveProfile.Click += new System.EventHandler(this.btnSaveProfile_Click);
+            // 
+            // schemaColumn
+            // 
+            this.schemaColumn.HeaderText = "Schema (optional)";
+            this.schemaColumn.Name = "schemaColumn";
+            this.schemaColumn.Width = 230;
+            // 
+            // tableNameColumn
+            // 
+            this.tableNameColumn.HeaderText = "Table Name";
+            this.tableNameColumn.Name = "tableNameColumn";
+            this.tableNameColumn.Width = 300;
+            // 
+            // namespaceColumn
+            // 
+            this.namespaceColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.namespaceColumn.HeaderText = "Namespace";
+            this.namespaceColumn.Name = "namespaceColumn";
+            // 
+            // errorTextColumn
+            // 
+            this.errorTextColumn.HeaderText = "Errors";
+            this.errorTextColumn.Name = "errorTextColumn";
+            this.errorTextColumn.ReadOnly = true;
+            this.errorTextColumn.Width = 260;
+            // 
             // CodeGenerator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1232, 745);
+            this.ClientSize = new System.Drawing.Size(1364, 745);
+            this.Controls.Add(this.btnSaveProfile);
+            this.Controls.Add(this.btnLoadProfile);
+            this.Controls.Add(this.btnClearForm);
             this.Controls.Add(this.nameSpaceErrorLabel);
             this.Controls.Add(this.classNameErrorLabel);
             this.Controls.Add(this.programmaticAttributeDefinitionClassNameTextBox);
@@ -256,6 +292,7 @@
             this.Controls.Add(this.label1);
             this.Name = "CodeGenerator";
             this.Text = "Test Data Framework Code Generator";
+            this.Load += new System.EventHandler(this.CodeGenerator_Load);
             ((System.ComponentModel.ISupportInitialize)(this.tableNameGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -282,8 +319,11 @@
         private System.Windows.Forms.Label nameSpaceErrorLabel;
         private System.Windows.Forms.Button browseOutputFolderButton;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-        private System.Windows.Forms.DataGridViewTextBoxColumn namespaceColumn;
+        private System.Windows.Forms.Button btnClearForm;
+        private System.Windows.Forms.Button btnLoadProfile;
+        private System.Windows.Forms.Button btnSaveProfile;
         private System.Windows.Forms.DataGridViewTextBoxColumn errorTextColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn namespaceColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn tableNameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn schemaColumn;
     }

@@ -10,7 +10,7 @@ using System.Data.SqlClient;
 
 namespace TestDataCodeGenerator
 {
-    public abstract class Output : IDisposable
+    public abstract class Output
     {
         protected readonly string OutputFolderPath;
         private readonly string sql;
@@ -50,10 +50,6 @@ namespace TestDataCodeGenerator
             sqlSb.Replace("@@@NameSpace", tableData.Namespace);
 
             return sqlSb.ToString();
-        }
-
-        public virtual void Dispose()
-        {
         }
     }
 
@@ -100,13 +96,6 @@ namespace TestDataCodeGenerator
             this.namespaceCollection.Add("System");
             this.namespaceCollection.Add("TestDataFramework");
             this.namespaceCollection.Add("TestDataFramework.Populator.Interfaces");
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            string code = this.WritePopulationCode();
-            this.WritePopulationCodeToFile(code);
         }
 
         private void WritePopulationCodeToFile(string code)
@@ -198,6 +187,9 @@ namespace TestDataCodeGenerator
 
             this.WriteEntityToFile(tableData, typeResult);
             this.AddCodeResult(codeResult, tableData);
+
+            string code = this.WritePopulationCode();
+            this.WritePopulationCodeToFile(code);
         }
 
         private void AddCodeResult(string codeResult, CodeGenerator.TableData tableData)
