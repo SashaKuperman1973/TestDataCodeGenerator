@@ -75,7 +75,7 @@ namespace TestDataCodeGenerator
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            CodeGenerator.Delete(this.profileName, this.profileCollection.ProfileList, this.lbxProfileList);
+            CodeGenerator.Delete(this.profileName, this.profileCollection, this.lbxProfileList);
         }
     }
 }

@@ -429,7 +429,7 @@ namespace TestDataCodeGenerator
             }
         }
 
-        public static void Delete(string profileName, List<Profile> profileList, ListBox profileListBox)
+        public static void Delete(string profileName, ProfileCollection profileColllection, ListBox profileListBox)
         {
             if (profileName.Trim() == string.Empty)
             {
@@ -443,6 +443,8 @@ namespace TestDataCodeGenerator
                 return;
             }
 
+            List<Profile> profileList = profileColllection.ProfileList;
+
             int position =
                 profileList.FindIndex(
                     profile =>
@@ -450,8 +452,10 @@ namespace TestDataCodeGenerator
 
             profileList.RemoveAt(position);
 
+            position = profileListBox.Items.IndexOf(profileName.Trim());
             profileListBox.Items.RemoveAt(position);
-        }
 
+            ProfileStorage.Serialize(profileColllection);
+        }
     }
 }

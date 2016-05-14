@@ -59,6 +59,7 @@ namespace TestDataCodeGenerator
             this.lbxProfileList.Location = new System.Drawing.Point(12, 12);
             this.lbxProfileList.Name = "lbxProfileList";
             this.lbxProfileList.Size = new System.Drawing.Size(156, 199);
+            this.lbxProfileList.Sorted = true;
             this.lbxProfileList.TabIndex = 1;
             this.lbxProfileList.SelectedIndexChanged += new System.EventHandler(this.lbxProfileList_SelectedIndexChanged);
             // 

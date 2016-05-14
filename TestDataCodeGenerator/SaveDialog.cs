@@ -42,7 +42,6 @@ namespace TestDataCodeGenerator
                 this.profileCollection.ProfileList = new List<Profile>();
             }
 
-            this.lbxProfileList.Sorted = true;
             this.lbxProfileList.Items.AddRange(this.profileCollection.ProfileList.Select(list => list.ProfileName).ToArray());
 
             this.txtProfileName.Text = ((CodeGenerator)this.Owner).ProfileName;
@@ -108,7 +107,7 @@ namespace TestDataCodeGenerator
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            CodeGenerator.Delete(this.txtProfileName.Text, this.profileCollection.ProfileList, this.lbxProfileList);
+            CodeGenerator.Delete(this.txtProfileName.Text, this.profileCollection, this.lbxProfileList);
         }
     }
 }
