@@ -157,10 +157,12 @@ FROM
 			col.system_type_id = typ.system_type_id AND col.user_type_id = typ.user_type_id	
 		left join sys.foreign_key_columns fkcol with (nolock) ON
 			col.object_id = fkcol.parent_object_id AND col.column_id = fkcol.parent_column_id
-		left join sys.index_columns AS idx_col with (nolock) ON
-			col.object_id = idx_col.object_id AND col.column_id = idx_col.column_id
-		left join sys.indexes idx with (nolock) ON
-			idx_col.object_id = idx.object_id AND idx_col.index_id = idx.index_id AND idx.is_primary_key = 1
+		left join (select idx_col.object_id, idx_col.column_id, idx.is_primary_key
+			from sys.index_columns AS idx_col with (nolock)
+			join sys.indexes idx with (nolock) ON
+				idx_col.object_id = idx.object_id AND idx_col.index_id = idx.index_id AND idx.is_primary_key = 1
+		) idx
+		on col.object_id = idx.object_id and col.column_id = idx.column_id
 				
 	where tbl.object_id = OBJECT_ID(@TableName)
 			
