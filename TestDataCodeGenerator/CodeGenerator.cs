@@ -20,8 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace TestDataCodeGenerator
@@ -62,6 +64,8 @@ namespace TestDataCodeGenerator
         public string OutputFolder => this.outputFolderTextBox.Text;
         public GenerationOption GenerationOption
             => this.programmaticAttributesRadioButton.Checked ? GenerationOption.Poco : GenerationOption.Declarative;
+
+        public bool IncludeDbName => this.chkIncludeDbName.Checked;
 
         public List<TableRow> TableList
         {
@@ -123,7 +127,8 @@ namespace TestDataCodeGenerator
                     : GenerationOption.Poco,
                 GeneratedClassName = this.programmaticAttributeDefinitionClassNameTextBox.Text,
                 DefaultNameSpace = this.nameSpaceTextBox.Text,
-                TableList = this.TableList
+                TableList = this.TableList,
+                IncludeDatabaseName = this.chkIncludeDbName.Checked,
             };
 
             ProfileCollection profileCollection = ProfileStorage.Deserialize() ?? new ProfileCollection();
@@ -197,10 +202,14 @@ namespace TestDataCodeGenerator
             public string TableName { get; set; }
             public string Schema { get; set; }
             public string Namespace { get; set; }
+            public string ClassName { get; set; }
+            public bool IncludeDbName { get; set; }
 
             public override string ToString()
             {
-                string result = $"TableName: {this.TableName}, Schema: {this.Schema}, Namespace: {this.Namespace}";
+                string result =
+                    $"TableName: {this.TableName}, Schema: {this.Schema}, Namespace: {this.Namespace}, ClassName: {this.ClassName} " +
+                    $"IncludeDbName: {this.IncludeDbName}";
                 return result;
             }
         }
@@ -271,6 +280,8 @@ namespace TestDataCodeGenerator
                 string schema = ((string)this.tableNameGridView["schemaColumn", i].Value)?.Trim();
                 string tableName = ((string)this.tableNameGridView["tableNameColumn", i].Value)?.Trim();
                 string nameSpace = ((string)this.tableNameGridView["namespaceColumn", i].Value)?.Trim();
+                string className = ((string)this.tableNameGridView["classNameColumn", i].Value)?.Trim();
+                bool includeDbName = this.chkIncludeDbName.Checked;
 
                 var errorCell = (DataGridViewTextBoxCell)this.tableNameGridView["errorTextColumn", i];
                 errorCell.Style = new DataGridViewCellStyle { ForeColor = Color.DarkBlue };
@@ -314,7 +325,14 @@ namespace TestDataCodeGenerator
 
                 errorCell.Value = null;
 
-                fullTableNameList.Add(new TableData { TableName = tableName, Schema = schema, Namespace = actualNameSpace});
+                fullTableNameList.Add(new TableData
+                {
+                    TableName = tableName,
+                    Schema = schema,
+                    Namespace = actualNameSpace,
+                    ClassName = className,
+                    IncludeDbName = includeDbName,
+                });
             }
 
             context = new Context {IsInputValid = isInputValid};
@@ -402,6 +420,8 @@ namespace TestDataCodeGenerator
             
             this.tableNameGridView.Rows.Clear();
 
+            this.chkIncludeDbName.Checked = profile.IncludeDatabaseName;
+
             profile.TableList.ForEach(
                 table => this.tableNameGridView.Rows.Add(table.Schema, table.TableName, table.NamespaceOverride, string.Empty)
                 );
@@ -456,6 +476,83 @@ namespace TestDataCodeGenerator
             profileListBox.Items.RemoveAt(position);
 
             ProfileStorage.Serialize(profileColllection);
+        }
+
+        private void btnLoadTables_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(
+                    "This will clear the table names grid. Continue?",
+                    "Load Tables", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+            {
+                return;
+            }
+
+
+            this.Enabled = false;
+
+            this.tableNameGridView.Rows.Clear();
+
+            try
+            {
+                this.LoadTables();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(CodeGenerator.GetExceptionMessage(ex), "Exception occurred", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
+            this.Enabled = true;
+        }
+
+        private class TableName
+        {
+            public string Name { get; set; }
+            public string Schema { get; set; }
+        }
+
+        private void LoadTables()
+        {
+            IEnumerable<TableName> tableNames = this.ReadTables();
+
+            foreach (TableName tableName in tableNames)
+            {
+                int rowIndex = this.tableNameGridView.Rows.Add();
+                this.tableNameGridView["schemaColumn", rowIndex].Value = tableName.Schema;
+                this.tableNameGridView["tableNameColumn", rowIndex].Value = tableName.Name;
+            }
+        }
+
+        private IEnumerable<TableName> ReadTables()
+        {
+            var tableNames = new List<TableName>();
+
+            using (var connection = new SqlConnection(this.connectionStringTextBox.Text))
+            {
+                connection.Open();
+
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandType = CommandType.Text;
+                    command.CommandText = Properties.Resources.GetAllTables;
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            tableNames.Add(
+                                new TableName
+                                {
+                                    Schema = reader.GetString(0),
+                                    Name = reader.GetString(1)
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+
+            return tableNames;
         }
     }
 }

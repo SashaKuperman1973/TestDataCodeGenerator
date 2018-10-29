@@ -23,8 +23,24 @@
 -- Description: Generates a custom Entity Class 
 --	for TestDataFramework from the input table
 -- =============================================
-DECLARE @TableName AS SYSNAME = '@@@TableName'	-- This is a token that gets replaced in the tool
-DECLARE @PrintableTableName VARCHAR(MAX) = Object_Name(Object_ID(@TableName));
+
+-- String tokens that start with @@@ get replaced in the tool
+
+DECLARE @TableName AS SYSNAME = '@@@TableName';
+DECLARE @ClassName VARCHAR(MAX) = '@@@ClassName';
+DECLARE @IncludeDbName BIT = @@@IncludeDbName;
+
+DECLARE @PrintableTableName VARCHAR(MAX);
+IF (@ClassName = '')
+	SET @PrintableTableName = Object_Name(Object_ID(@TableName));
+ELSE
+	SET @PrintableTableName = @ClassName;
+
+DECLARE @DbName VARCHAR(MAX)
+IF (@IncludeDbName = 1)
+	SET @DbName = '"' + db_name() + '", ';
+ELSE
+	SET @DbName = ''
 
 DECLARE @TypeResult VARCHAR(MAX) = 'using System;
 using TestDataFramework;
@@ -77,56 +93,14 @@ FROM
             WHEN 'varbinary' THEN 'byte[]'
             WHEN 'varchar' THEN 'string'
             ELSE 'UNKNOWN_' + typ.name
-        END ColumnType,
-        
-        CASE 
-            WHEN typ.name = 'bigint' THEN NULL -- 'long'
-            WHEN typ.name = 'binary' THEN NULL  -- 'byte[]'
-            WHEN typ.name = 'bit' THEN NULL -- 'bool'
-            WHEN typ.name = 'char' THEN NULL -- 'string'
-            WHEN typ.name = 'date' THEN NULL -- 'DateTime'
-            WHEN typ.name = 'datetime' THEN NULL -- 'DateTime'
-            WHEN typ.name = 'datetime2' THEN NULL -- 'DateTime'
-            WHEN typ.name = 'datetimeoffset' THEN NULL -- 'DateTimeOffset'
-											WHEN typ.name = 'decimal' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]'
-											WHEN typ.name = 'float' THEN NULL 
-            WHEN typ.name = 'image' THEN NULL -- 'byte[]'
-            WHEN typ.name = 'int' THEN NULL -- 'int'
-											WHEN typ.name = 'money' THEN NULL 
-            WHEN typ.name = 'nchar' THEN NULL -- 'char'
-											WHEN typ.name = 'ntext' THEN NULL 
-											WHEN typ.name = 'numeric' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]'
-											WHEN typ.name = 'nvarchar' THEN '[StringLength('+CAST(CASE col.max_length WHEN -1 THEN 50 ELSE col.max_length/2 END as nvarchar(100))+')]'
-            WHEN typ.name = 'real' THEN NULL -- 'double'
-            WHEN typ.name = 'smalldatetime' THEN NULL -- 'DateTime'
-            WHEN typ.name = 'smallint' THEN NULL -- 'short'
-											WHEN typ.name = 'smallmoney' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]'
-											WHEN typ.name = 'text' THEN NULL 
-            WHEN typ.name = 'time' THEN NULL -- 'TimeSpan'
-            WHEN typ.name = 'timestamp' THEN NULL -- 'DateTime'
-            WHEN typ.name = 'tinyint' THEN NULL -- 'byte'
-            WHEN typ.name = 'uniqueidentifier' THEN NULL -- 'Guid'
-            WHEN typ.name = 'varbinary' THEN NULL -- 'byte[]'
-											WHEN typ.name = 'varchar' THEN '[StringLength('+CAST(CASE col.max_length WHEN -1 THEN 50 ELSE col.max_length END as nvarchar(100))+')]'
-            ELSE NULL 
-        END Attribute,
+        END ColumnType,        
         
         CASE 
             WHEN col.is_nullable = 1 and typ.name in ('bigint', 'bit', 'date', 'datetime', 'datetime2', 'datetimeoffset', 'decimal', 'float', 'int', 'money', 'numeric', 'real', 'smalldatetime', 'smallint', 'smallmoney', 'time', 'tinyint', 'uniqueidentifier') 
             THEN '?' 
             ELSE '' 
-        END NullableSign,
-        
-        CASE fkcol.parent_object_id
-			WHEN NULL THEN NULL 
-			ELSE '[ForeignKey("'+sch.name+'", "'+OBJECT_NAME(fkcol.referenced_object_id)+'", "'+COL_NAME(fkcol.referenced_object_id, fkcol.referenced_column_id)+'"'+')]' 
-        END ForeignKeyAttribute,
-        
-        CASE idx.is_primary_key
-			WHEN 1 THEN '[PrimaryKey('+CASE col.is_identity WHEN 1 THEN 'PrimaryKeyAttribute.KeyTypeEnum.Auto' ELSE 'PrimaryKeyAttribute.KeyTypeEnum.Manual' END+')]'
-			ELSE NULL
-		END PrimaryKeyAttribute
-        
+        END NullableSign
+                
 	from sys.columns col with (nolock)
 		join sys.tables tbl with (nolock) ON
 			col.object_id = tbl.object_id
@@ -159,7 +133,9 @@ SELECT @CodeResult = @CodeResult +
 	Attribute IS NOT NULL OR 
 	OriginalColumnName != ColumnName OR
 	ForeignKeyAttribute IS NOT NULL OR
-	PrimaryKeyAttribute IS NOT NULL 
+	PrimaryKeyAttribute IS NOT NULL OR
+	PrecisionAttribute IS NOT NULL OR
+	DecimalMaxAttribute IS NOT NULL 
 
 	THEN
 
@@ -177,7 +153,15 @@ SELECT @CodeResult = @CodeResult +
 
 		CASE WHEN PrimaryKeyAttribute IS NOT NULL THEN 
 		'
-				.AddAttributeToMember(m => m.' + ColumnName + ', new ' + PrimaryKeyAttribute + ')' ELSE '' END
+				.AddAttributeToMember(m => m.' + ColumnName + ', new ' + PrimaryKeyAttribute + ')' ELSE '' END +
+
+		CASE WHEN PrecisionAttribute IS NOT NULL THEN 
+		'
+				.AddAttributeToMember(m => m.' + ColumnName + ', new ' + PrecisionAttribute + ')' ELSE '' END +
+
+		CASE WHEN DecimalMaxAttribute IS NOT NULL THEN 
+		'
+				.AddAttributeToMember(m => m.' + ColumnName + ', new ' + DecimalMaxAttribute + ')' ELSE '' END
 
 	ELSE ''
 
@@ -202,19 +186,16 @@ FROM
             WHEN typ.name = 'datetime' THEN NULL -- 'DateTime'
             WHEN typ.name = 'datetime2' THEN NULL -- 'DateTime'
             WHEN typ.name = 'datetimeoffset' THEN NULL -- 'DateTimeOffset'
-											WHEN typ.name = 'decimal' THEN 'PrecisionAttribute('+CAST(col.scale as nvarchar(100))+')'
 											WHEN typ.name = 'float' THEN NULL 
             WHEN typ.name = 'image' THEN NULL -- 'byte[]'
             WHEN typ.name = 'int' THEN NULL -- 'int'
 											WHEN typ.name = 'money' THEN NULL 
             WHEN typ.name = 'nchar' THEN NULL -- 'char'
 											WHEN typ.name = 'ntext' THEN NULL 
-											WHEN typ.name = 'numeric' THEN 'PrecisionAttribute('+CAST(col.scale as nvarchar(100))+')'
 											WHEN typ.name = 'nvarchar' THEN 'StringLengthAttribute('+CAST(CASE col.max_length WHEN -1 THEN 50 ELSE col.max_length/2 END as nvarchar(100))+')'
             WHEN typ.name = 'real' THEN NULL -- 'double'
             WHEN typ.name = 'smalldatetime' THEN NULL -- 'DateTime'
             WHEN typ.name = 'smallint' THEN NULL -- 'short'
-											WHEN typ.name = 'smallmoney' THEN 'PrecisionAttribute('+CAST(col.scale as nvarchar(100))+')'
 											WHEN typ.name = 'text' THEN NULL 
             WHEN typ.name = 'time' THEN NULL -- 'TimeSpan'
             WHEN typ.name = 'timestamp' THEN NULL -- 'DateTime'
@@ -225,6 +206,20 @@ FROM
             ELSE NULL 
         END Attribute,
         
+		CASE typ.name
+			WHEN 'decimal' THEN 'PrecisionAttribute('+CAST(col.scale as nvarchar(100))+')'
+			WHEN 'numeric' THEN 'PrecisionAttribute('+CAST(col.scale as nvarchar(100))+')'
+			WHEN 'smallmoney' THEN 'PrecisionAttribute('+CAST(col.scale as nvarchar(100))+')'
+			ELSE NULL
+		END PrecisionAttribute,
+
+		CASE typ.name
+			WHEN 'decimal' THEN IIF(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) <= 9223372036854775807, 'MaxAttribute('+CAST(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) as nvarchar(100))+')', '')
+			WHEN 'numeric' THEN IIF(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) <= 9223372036854775807, 'MaxAttribute('+CAST(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) as nvarchar(100))+')', '')
+			WHEN 'smallmoney' THEN IIF(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) <= 9223372036854775807, 'MaxAttribute('+CAST(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) as nvarchar(100))+')', '')
+			ELSE NULL
+		END DecimalMaxAttribute,
+
         CASE fkcol.parent_object_id
 			WHEN NULL THEN NULL 
 			ELSE 'ForeignKeyAttribute("'+sch.name+'", "'+OBJECT_NAME(fkcol.referenced_object_id)+'", "'+COL_NAME(fkcol.referenced_object_id, fkcol.referenced_column_id)+'"'+')' 
@@ -263,7 +258,7 @@ SELECT @schema = sch.name from sys.schemas sch
 
 DECLARE @TypeCodeResult VARCHAR(MAX) = '
 			populator.DecorateType<'+@PrintableTableName+'>()
-			.AddAttributeToType(new TableAttribute("' + DB_NAME() + '", "' + @schema + '", "' + @PrintableTableName + '"))';
+			.AddAttributeToType(new TableAttribute(' + @DbName + '"' + @schema + '", "' + @PrintableTableName + '"))';
 
 IF @CodeResult != ''
 Set @TypeCodeResult = @TypeCodeResult + @CodeResult;

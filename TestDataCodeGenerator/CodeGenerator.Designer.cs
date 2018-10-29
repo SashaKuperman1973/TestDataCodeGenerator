@@ -51,6 +51,11 @@ namespace TestDataCodeGenerator
             this.connectionStringTextBox = new System.Windows.Forms.TextBox();
             this.outputFolderTextBox = new System.Windows.Forms.TextBox();
             this.tableNameGridView = new System.Windows.Forms.DataGridView();
+            this.schemaColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.classNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.namespaceColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.errorTextColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.runButton = new System.Windows.Forms.Button();
             this.connectionStringErrorLabel = new System.Windows.Forms.Label();
             this.outputFolderErrorLabel = new System.Windows.Forms.Label();
@@ -68,10 +73,8 @@ namespace TestDataCodeGenerator
             this.btnClearForm = new System.Windows.Forms.Button();
             this.btnLoadProfile = new System.Windows.Forms.Button();
             this.btnSaveProfile = new System.Windows.Forms.Button();
-            this.schemaColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.namespaceColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.errorTextColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnLoadTables = new System.Windows.Forms.Button();
+            this.chkIncludeDbName = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.tableNameGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -104,12 +107,44 @@ namespace TestDataCodeGenerator
             this.tableNameGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.schemaColumn,
             this.tableNameColumn,
+            this.classNameColumn,
             this.namespaceColumn,
             this.errorTextColumn});
             this.tableNameGridView.Location = new System.Drawing.Point(12, 240);
             this.tableNameGridView.Name = "tableNameGridView";
             this.tableNameGridView.Size = new System.Drawing.Size(1326, 408);
             this.tableNameGridView.TabIndex = 7;
+            // 
+            // schemaColumn
+            // 
+            this.schemaColumn.HeaderText = "Schema (optional)";
+            this.schemaColumn.Name = "schemaColumn";
+            this.schemaColumn.Width = 230;
+            // 
+            // tableNameColumn
+            // 
+            this.tableNameColumn.HeaderText = "Table Name";
+            this.tableNameColumn.Name = "tableNameColumn";
+            this.tableNameColumn.Width = 300;
+            // 
+            // classNameColumn
+            // 
+            this.classNameColumn.HeaderText = "Class Name (optional)";
+            this.classNameColumn.Name = "classNameColumn";
+            this.classNameColumn.Width = 250;
+            // 
+            // namespaceColumn
+            // 
+            this.namespaceColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.namespaceColumn.HeaderText = "Namespace";
+            this.namespaceColumn.Name = "namespaceColumn";
+            // 
+            // errorTextColumn
+            // 
+            this.errorTextColumn.HeaderText = "Errors";
+            this.errorTextColumn.Name = "errorTextColumn";
+            this.errorTextColumn.ReadOnly = true;
+            this.errorTextColumn.Width = 260;
             // 
             // runButton
             // 
@@ -259,36 +294,33 @@ namespace TestDataCodeGenerator
             this.btnSaveProfile.UseVisualStyleBackColor = true;
             this.btnSaveProfile.Click += new System.EventHandler(this.btnSaveProfile_Click);
             // 
-            // schemaColumn
+            // btnLoadTables
             // 
-            this.schemaColumn.HeaderText = "Schema (optional)";
-            this.schemaColumn.Name = "schemaColumn";
-            this.schemaColumn.Width = 230;
+            this.btnLoadTables.Location = new System.Drawing.Point(779, 154);
+            this.btnLoadTables.Name = "btnLoadTables";
+            this.btnLoadTables.Size = new System.Drawing.Size(120, 23);
+            this.btnLoadTables.TabIndex = 24;
+            this.btnLoadTables.Text = "Load Tables";
+            this.btnLoadTables.UseVisualStyleBackColor = true;
+            this.btnLoadTables.Click += new System.EventHandler(this.btnLoadTables_Click);
             // 
-            // tableNameColumn
+            // chkIncludeDbName
             // 
-            this.tableNameColumn.HeaderText = "Table Name";
-            this.tableNameColumn.Name = "tableNameColumn";
-            this.tableNameColumn.Width = 300;
-            // 
-            // namespaceColumn
-            // 
-            this.namespaceColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.namespaceColumn.HeaderText = "Namespace";
-            this.namespaceColumn.Name = "namespaceColumn";
-            // 
-            // errorTextColumn
-            // 
-            this.errorTextColumn.HeaderText = "Errors";
-            this.errorTextColumn.Name = "errorTextColumn";
-            this.errorTextColumn.ReadOnly = true;
-            this.errorTextColumn.Width = 260;
+            this.chkIncludeDbName.AutoSize = true;
+            this.chkIncludeDbName.Location = new System.Drawing.Point(779, 197);
+            this.chkIncludeDbName.Name = "chkIncludeDbName";
+            this.chkIncludeDbName.Size = new System.Drawing.Size(141, 17);
+            this.chkIncludeDbName.TabIndex = 25;
+            this.chkIncludeDbName.Text = "Include Database Name";
+            this.chkIncludeDbName.UseVisualStyleBackColor = true;
             // 
             // CodeGenerator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1364, 745);
+            this.ClientSize = new System.Drawing.Size(1364, 755);
+            this.Controls.Add(this.chkIncludeDbName);
+            this.Controls.Add(this.btnLoadTables);
             this.Controls.Add(this.btnSaveProfile);
             this.Controls.Add(this.btnLoadProfile);
             this.Controls.Add(this.btnClearForm);
@@ -341,10 +373,13 @@ namespace TestDataCodeGenerator
         private System.Windows.Forms.Button btnClearForm;
         private System.Windows.Forms.Button btnLoadProfile;
         private System.Windows.Forms.Button btnSaveProfile;
-        private System.Windows.Forms.DataGridViewTextBoxColumn errorTextColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn namespaceColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tableNameColumn;
+        private System.Windows.Forms.Button btnLoadTables;
         private System.Windows.Forms.DataGridViewTextBoxColumn schemaColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tableNameColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn classNameColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn namespaceColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn errorTextColumn;
+        private System.Windows.Forms.CheckBox chkIncludeDbName;
     }
 }
 

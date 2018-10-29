@@ -27,14 +27,27 @@
 -- String tokens that start with @@@ get replaced in the tool
 
 DECLARE @TableName AS SYSNAME = '@@@TableName';
-DECLARE @PrintableTableName VARCHAR(MAX) = Object_Name(Object_ID(@TableName));
+DECLARE @ClassName VARCHAR(MAX) = '@@@ClassName';
+DECLARE @IncludeDbName BIT = @@@IncludeDbName;
+
+DECLARE @PrintableTableName VARCHAR(MAX);
+IF (@ClassName = '')
+	SET @PrintableTableName = Object_Name(Object_ID(@TableName));
+ELSE
+	SET @PrintableTableName = @ClassName;
+
+DECLARE @DbName VARCHAR(MAX)
+IF (@IncludeDbName = 1)
+	SET @DbName = '"' + db_name() + '", ';
+ELSE
+	SET @DbName = ''
 
 DECLARE @Result VARCHAR(MAX) = 'using System;
 using TestDataFramework;
 
 namespace @@@NameSpace
 {
-  [Table("'+DB_NAME()+'", "'+OBJECT_SCHEMA_NAME(OBJECT_ID(@TableName))+'", "'+OBJECT_NAME(OBJECT_ID(@TableName))+'")]
+  [Table(' + @DbName + '"'+OBJECT_SCHEMA_NAME(OBJECT_ID(@TableName))+'", "'+OBJECT_NAME(OBJECT_ID(@TableName))+'")]
   public class ' + @PrintableTableName + '
   {'
 
@@ -109,19 +122,19 @@ FROM
             WHEN typ.name = 'datetime' THEN NULL -- 'DateTime'
             WHEN typ.name = 'datetime2' THEN NULL -- 'DateTime'
             WHEN typ.name = 'datetimeoffset' THEN NULL -- 'DateTimeOffset'
-											WHEN typ.name = 'decimal' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]'
+											WHEN typ.name = 'decimal' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]' + IIF(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) <= 9223372036854775807, ' [Max('+CAST(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) as nvarchar(100))+')]', '')
 											WHEN typ.name = 'float' THEN NULL 
             WHEN typ.name = 'image' THEN NULL -- 'byte[]'
             WHEN typ.name = 'int' THEN NULL -- 'int'
 											WHEN typ.name = 'money' THEN NULL 
             WHEN typ.name = 'nchar' THEN NULL -- 'char'
 											WHEN typ.name = 'ntext' THEN NULL 
-											WHEN typ.name = 'numeric' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]'
+											WHEN typ.name = 'numeric' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]' + IIF(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) <= 9223372036854775807, ' [Max('+CAST(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) as nvarchar(100))+')]', '')
 											WHEN typ.name = 'nvarchar' THEN '[StringLength('+CAST(CASE col.max_length WHEN -1 THEN 50 ELSE col.max_length/2 END as nvarchar(100))+')]'
             WHEN typ.name = 'real' THEN NULL -- 'double'
             WHEN typ.name = 'smalldatetime' THEN NULL -- 'DateTime'
             WHEN typ.name = 'smallint' THEN NULL -- 'short'
-											WHEN typ.name = 'smallmoney' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]'
+											WHEN typ.name = 'smallmoney' THEN '[Precision('+CAST(col.scale as nvarchar(100))+')]' + IIF(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) <= 9223372036854775807, ' [Max('+CAST(POWER(CAST(10 as bigint), (col.[precision] - col.scale)) as nvarchar(100))+')]', '')
 											WHEN typ.name = 'text' THEN NULL 
             WHEN typ.name = 'time' THEN NULL -- 'TimeSpan'
             WHEN typ.name = 'timestamp' THEN NULL -- 'DateTime'

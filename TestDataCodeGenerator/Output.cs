@@ -39,7 +39,12 @@ namespace TestDataCodeGenerator
 
         protected void WriteEntityToFile(CodeGenerator.TableData tableData, string code)
         {
-            string fileName = tableData.TableName.Replace(" ", "_");
+            string fileName = string.IsNullOrWhiteSpace(tableData.ClassName)
+                ? tableData.TableName
+                : tableData.ClassName;
+
+            fileName = fileName.Replace(" ", "_");
+
             if (!string.IsNullOrWhiteSpace(tableData.Schema))
             {
                 fileName = tableData.Schema.Replace(" ", "_") + "." + fileName;
@@ -64,6 +69,9 @@ namespace TestDataCodeGenerator
             var sqlSb = new StringBuilder(this.sql);
             sqlSb.Replace("@@@TableName", fullTableName);
             sqlSb.Replace("@@@NameSpace", tableData.Namespace);
+            sqlSb.Replace("@@@ClassName",
+                string.IsNullOrWhiteSpace(tableData.ClassName) ? string.Empty : tableData.ClassName.Trim());
+            sqlSb.Replace("@@@IncludeDbName", tableData.IncludeDbName ? "1" : "0");
 
             return sqlSb.ToString();
         }

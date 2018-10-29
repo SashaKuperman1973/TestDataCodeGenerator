@@ -96,6 +96,7 @@ namespace TestDataCodeGenerator
             profileToWrite.GenerationOption = mainForm.GenerationOption;
             profileToWrite.OutputFolder = mainForm.OutputFolder;
             profileToWrite.TableList = mainForm.TableList;
+            profileToWrite.IncludeDatabaseName = mainForm.IncludeDbName;
 
             ProfileStorage.Serialize(this.profileCollection);
 

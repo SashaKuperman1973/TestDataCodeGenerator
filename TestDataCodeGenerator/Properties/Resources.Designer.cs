@@ -61,17 +61,27 @@ namespace TestDataCodeGenerator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to -- =============================================
-        ///-- Author: Tapan Kumar, Alexander Kuperman
-        ///-- Create date: 06/02/2015
-        ///-- Description: Generates a custom Entity Class 
-        ///--	for TestDataFramework from the input table
-        ///-- =============================================
-        ///DECLARE @TableName AS SYSNAME = &apos;@@@TableName&apos;	-- This is a token that gets replaced in the tool
-        ///DECLARE @PrintableTableName VARCHAR(MAX) = Object_Name(Object_ID(@TableName));
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string GetAllTables {
+            get {
+                return ResourceManager.GetString("GetAllTables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /*
+        ///    Copyright 2016 Alexander Kuperman
         ///
-        ///DECLARE @Result VARCHAR(MAX) = &apos;using System;
-        ///using TestDataFr [rest of string was truncated]&quot;;.
+        ///    This file is part of TestDataCodeGenerator.
+        ///
+        ///    TestDataCodeGenerator is free software: you can redistribute it and/or modify
+        ///    it under the terms of the GNU General Public License as published by
+        ///    the Free Software Foundation, either version 3 of the License, or
+        ///    (at your option) any later version.
+        ///
+        ///    TestDataCodeGenerator is distributed in the hope that it will be useful,
+        ///    but WITHOUT ANY WARRANTY; without even the implied warranty of        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GetEntityClass {
             get {
@@ -80,17 +90,18 @@ namespace TestDataCodeGenerator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to -- =============================================
-        ///-- Author: Tapan Kumar, Alexander Kuperman
-        ///-- Create date: 06/02/2015
-        ///-- Description: Generates a custom Entity Class 
-        ///--	for TestDataFramework from the input table
-        ///-- =============================================
-        ///DECLARE @TableName AS SYSNAME = &apos;@@@TableName&apos;	-- This is a token that gets replaced in the tool
-        ///DECLARE @PrintableTableName VARCHAR(MAX) = Object_Name(Object_ID(@TableName));
+        ///   Looks up a localized string similar to /*
+        ///    Copyright 2016 Alexander Kuperman
         ///
-        ///DECLARE @TypeResult VARCHAR(MAX) = &apos;using System;
-        ///using TestDa [rest of string was truncated]&quot;;.
+        ///    This file is part of TestDataCodeGenerator.
+        ///
+        ///    TestDataCodeGenerator is free software: you can redistribute it and/or modify
+        ///    it under the terms of the GNU General Public License as published by
+        ///    the Free Software Foundation, either version 3 of the License, or
+        ///    (at your option) any later version.
+        ///
+        ///    TestDataCodeGenerator is distributed in the hope that it will be useful,
+        ///    but WITHOUT ANY WARRANTY; without even the implied warranty of        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GetPocoEntityClass {
             get {

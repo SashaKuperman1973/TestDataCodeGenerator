@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Configuration;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace TestDataCodeGenerator
@@ -49,6 +50,7 @@ namespace TestDataCodeGenerator
         public GenerationOption GenerationOption { get; set; }
         public string DefaultNameSpace { get; set; }
         public List<TableRow> TableList { get; set; }
+        public bool IncludeDatabaseName { get; set; }
     }
 
     [Serializable]
