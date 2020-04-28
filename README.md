@@ -10,7 +10,7 @@ You may be able to figure out what's going on from there.
 
 So:
 
-- Make sure your table names are spelled correctly in the taget table grid list, with no leading or trailing spaces.
+- Make sure your table names are spelled correctly in the target table grid list, with no leading or trailing spaces.
 
 - Make sure your connection string is right.
 
@@ -43,4 +43,4 @@ NameSpace
 	- The default namespace for all generated classes.
 	
 Namespace text column in grid adjacent to Table Name text column
-	- Overrides default namespace for that table/class. Leave blank if you don't want to use default.
+	- Overrides default namespace for that table/class. Leave blank if you want to use default.
